@@ -1,6 +1,6 @@
 # MAMR
 
-Code for multi-agent reinforcement learning to unify order-matching and vehicle-repositioning in ride-hailing services.
+Code for multi-agent reinforcement learning to unify order-matching and vehicle-repositioning in ride-hailing services. (https://doi.org/10.1080/13658816.2022.2119477)
 
 ## Environment
  
@@ -56,6 +56,12 @@ Thanks to these repositories:
 - [light_mappo](https://github.com/tinyzqh/light_mappo)
 - [optimize-ride-sharing-earnings](https://github.com/transparent-framework/optimize-ride-sharing-earnings)
 
-## Note
-
-Please do not reprint or publish this code without the author's permission.
+## Cite
+@article{xu2022multi,
+  title={Multi-agent reinforcement learning to unify order-matching and vehicle-repositioning in ride-hailing services},
+  author={Xu, Mingyue and Yue, Peng and Yu, Fan and Yang, Can and Zhang, Mingda and Li, Shangcheng and Li, Hao},
+  journal={International Journal of Geographical Information Science},
+  pages={1--23},
+  year={2022},
+  publisher={Taylor \& Francis}
+}
