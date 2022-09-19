@@ -23,7 +23,7 @@ class EnvRunner(Runner):
     def run(self):
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
-        _step_start = 36
+        _step_start = 0
         best_reject = 1
         
         for episode in range(episodes):
@@ -93,17 +93,15 @@ class EnvRunner(Runner):
         # reset env
         model = self.trainer.policy
 
-        obs, infos, cent_state = self.envs.reset(_step_start, model)  # shape = (1, 6000, 10)
+        obs, infos, cent_state = self.envs.reset(_step_start, model)  
 
-        # replay buffer: >> hexbinID(c+n) + timestep + dayofweek + SD gap (all) 
-        # 151 (1, 6000, 151) > 145 ([1:] are the same)
-        if self.use_centralized_V:  #1,142 x (142,142)T = 1,142
-            share_obs = cent_state.reshape(self.n_rollout_threads, -1)  # shape = (1, 144)
-            share_obs = np.expand_dims(share_obs, 1).repeat(self.num_agents, axis=1)  # shape = (1, 6000, 144)
-            hexbin = infos[0,:,1].reshape(1, self.num_agents, 1) # shape = (1, 6000, 1)
-            share_obs = np.concatenate((hexbin, share_obs), axis=2)  # shape = (1, 6000, 145)
+        if self.use_centralized_V:  
+            share_obs = cent_state.reshape(self.n_rollout_threads, -1)  
+            share_obs = np.expand_dims(share_obs, 1).repeat(self.num_agents, axis=1)  
+            hexbin = infos[0,:,1].reshape(1, self.num_agents, 1) 
+            share_obs = np.concatenate((hexbin, share_obs), axis=2) 
 
-            weights = hex_weight[infos[0,:,1]] # (6000, 142)
+            weights = hex_weight[infos[0,:,1]] 
             temp = share_obs[0,:,3:] * weights
             share_obs[0,:,3:] = temp
         else:
@@ -156,19 +154,19 @@ class EnvRunner(Runner):
         masks[dones == True] = np.zeros(((dones == True).sum(), 1), dtype=np.int8)
 
         if self.use_centralized_V:
-            share_obs = cent_state.reshape(self.n_rollout_threads, -1)  # shape = (1, 144)
-            share_obs = np.expand_dims(share_obs, 1).repeat(self.num_agents, axis=1)  # shape = (1, 6000, 144)
-            hexbin = infos[0,:,1].reshape(1, self.num_agents, 1) # shape = (1, 6000, 1)
-            share_obs = np.concatenate((hexbin, share_obs), axis=2)  # shape = (1, 6000, 145)
+            share_obs = cent_state.reshape(self.n_rollout_threads, -1)  
+            share_obs = np.expand_dims(share_obs, 1).repeat(self.num_agents, axis=1)  
+            hexbin = infos[0,:,1].reshape(1, self.num_agents, 1)
+            share_obs = np.concatenate((hexbin, share_obs), axis=2)  
 
-            weights = hex_weight[infos[0,:,1]] # (6000, 142)
+            weights = hex_weight[infos[0,:,1]]
             temp = share_obs[0,:,3:] * weights
             share_obs[0,:,3:] = temp
         else:
             share_obs = obs
         _available_actions = []
         for i in range(self.num_agents):
-            if infos[0][i][0] == 0: #[0][i]
+            if infos[0][i][0] == 0:
                 _available_actions.append([1,1,1,1,1,1,1,0])
             else:
                 _available_actions.append([0,0,0,0,0,0,0,1])

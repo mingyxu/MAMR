@@ -140,9 +140,6 @@ class Env(object):
         
         sub_agent_info = np.array(sub_agent_info)
         if done:
-            print("reject_rate:", self.reject_rate, flush=True)
-            print("unfulfilled_demand", self.unfulfilled_demand, flush=True)
-            print("all_demand", self.all_demand, flush=True)
             return [sub_agent_obs, sub_agent_reward, sub_agent_done, sub_agent_info, cent_state, self.reject_rate, self.total_reward, self.total_trv_time, self.total_income]
         else:
             return [sub_agent_obs, sub_agent_reward, sub_agent_done, sub_agent_info, cent_state]

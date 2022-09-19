@@ -38,39 +38,16 @@ class MLPBase(nn.Module):
 
         self.obs_dim = obs_shape[0]
         if self.obs_dim == 10:
-            self.hidden_size = args.hidden_size_a  # 10
+            self.hidden_size = args.hidden_size_a
         elif self.obs_dim == 145:
-            self.hidden_size = args.hidden_size_c  # 145
+            self.hidden_size = args.hidden_size_c 
         elif self.obs_dim == 3:
-            self.hidden_size = args.hidden_size_st  # 3
+            self.hidden_size = args.hidden_size_st  
 
         self.mlp = MLPLayer(self.obs_dim, self.hidden_size,
                               self._layer_N, self._use_orthogonal, self._use_ReLU)
-
-    def standardization(self, data, mu, sigma):
-        norm = (data - mu) / (sigma + 1e-5)
-        return norm
-
-    def compute_norm(self, data, mean=[70.5, 53.5, 3.0, 25, 12], std=[40.99085263811915, 31.175578048637153, 2.0, 60, 30]):
-        # obs: hexbinID + timestep + dayofweek + supply/demand(gap) current/neighbor # (109,1,6000,10)
-        # share_obs: hexbinID + timestep + dayofweek + supply/demand(gap) all # (109,1,6000,145)
-        # share_obs: timestep + dayofweek + supply/demand(gap) all # (109,1,6000,144)
-        # st_obs: hexbinID + timestep + dayofweek
-        data[:,0] = self.standardization(data[:,0], mean[0], std[0])
-        data[:,1] = self.standardization(data[:,1], mean[1], std[1])
-        data[:,2] = self.standardization(data[:,2], mean[2], std[2])
-        if self.obs_dim == 10: # 3+7=10 # (109,1,6000,3)
-            data[:,3:] = self.standardization(data[:,3:], mean[3], std[3])
-        elif self.obs_dim == 145: # 3+142=145
-            data[:,3:] = self.standardization(data[:,3:], mean[4], std[4])
-        elif self.obs_dim == 3:
-            pass
-        else:
-            raise NotImplementedError
-        return data
+  
 
     def forward(self, x):
-        x = self.compute_norm(x)
-
-        x = self.mlp(x)  # 6000,10 > 648,10 (bs)
+        x = self.mlp(x)
         return x

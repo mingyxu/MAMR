@@ -15,18 +15,6 @@ def get_degree(S, D):
         r = 1 - (abs(S-D) / max(S,D))
     return r
 
-def get_order(city_state_hexbin, current_demand):
-    """ 
-    get next order in current gird at time step t
-    :param city_state_hexbin: number of orders from file "city_state"
-    :param current_demand: number of fulfilled orders
-    :return next_order_hexbin: next order waiting to be completed in which hexbin
-    """
-    accu = np.add.accumulate(city_state_hexbin)
-    i = 0
-    while (current_demand + accu[i]) < accu[-1]:
-        i += 1
-    return i
 
 def get_order2(hex_demand):
     return (hex_demand!=0).argmax(axis=0)
@@ -117,18 +105,9 @@ def take_dispatch_action(t, T, S, drivers, hex_bin, city_state, driver_distribut
                 reward += 0
             t_prime = t + travel_time
             if t_prime < T:
-                try:
-                    driver_distribution_matrix[t_prime][i] = (
-                        driver_distribution_matrix[t_prime][i].tolist() + driver_destination_vector[i].tolist())
-                except:
-                    driver_distribution_matrix[t_prime][i] = (
-                        driver_distribution_matrix[t_prime][i] + driver_destination_vector[i].tolist())
-            for j in range(len(driver_destination_vector[i])):
-                dirver_id = driver_destination_vector[i][j].astype(int)
-                driver_state[dirver_id][0] = 1
-                driver_state[dirver_id][1] = hex_bin
-                driver_state[dirver_id][2] = t_prime
-                driver_state[dirver_id][3] = i
+                driver_distribution_matrix[t_prime][i] = (
+                    driver_distribution_matrix[t_prime][i].tolist() + driver_destination_vector[i].tolist())
+                
     return driver_distribution_matrix, reward, hex_state_demand, driver_state, hex_demand, total_travel
 
 
@@ -190,9 +169,6 @@ def take_relocate_action(t, T, driver_id, action, hex_bin, hex_attr_df, city_sta
     if t_prime < T:
         driver_distribution_matrix[t_prime][driver_state_i[3]] = np.append(driver_distribution_matrix[t_prime][driver_state_i[3]], driver_id)
 
-    # driver_state_i[1] = neighbor
-    driver_state_i[1] = hex_bin
-    driver_state_i[2] = t_prime
             
     return driver_distribution_matrix, reward, city_state_demand, driver_state_i, hex_demand, trv_time, income
 
@@ -213,10 +189,10 @@ def take_wait_action(t, T, driver_id, hex_bin, driver_distribution_matrix, next_
     t_prime = t + travel_time
     if t_prime < T:
         driver_distribution_matrix[t_prime][hex_bin] = np.append(driver_distribution_matrix[t_prime][hex_bin], driver_id)
-    driver_state_i[0] = 0 # idle
-    driver_state_i[1] = hex_bin # c grid
-    driver_state_i[2] = t_prime # d time
-    driver_state_i[3] = hex_bin # d grid
+    driver_state_i[0] = 0 
+    driver_state_i[1] = hex_bin 
+    driver_state_i[2] = t_prime 
+    driver_state_i[3] = hex_bin 
     if t < (T-2):
         reward += get_degree(next_city_demand[hex_bin], len(driver_distribution_matrix[t+1][hex_bin])) # current gird
     
